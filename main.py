@@ -33,27 +33,24 @@ class RoundRobin:
         processos_finalizados = []
         while fila:
             processo = fila.pop(0)
-            if processo.fim:
-                continue
+            if processo.inicio == -1:
+                processo.inicio = self.tempo_atual
+                processo.tempoRes = self.tempo_atual
+            while tempo_ate_quantum <= self.quantum and processo.tempo < processo.duracao:
+                processo.tempo += 1
+                self.tempo_atual += 1
+                tempo_ate_quantum += 1
+                # print(f"Processo {processo.nome} executando. Tempo atual: {self.tempo_atual}. Tempo de execução: {processo.duracao}")
+            tempo_ate_quantum = 1
+            if processo.tempo >= processo.duracao:
+                processo.fim = True
+                # print(f"Processo {processo.nome} finalizado. {self.tempo_atual} unidades de tempo. {processo.tempo_chegada}")
+                processo.tempo_finalizacao = self.tempo_atual
+                processo.tempo_retorno = processo.tempo_finalizacao - processo.tempo_chegada
+                processo.tempo_resposta = processo.inicio - processo.tempo_chegada
+                processos_finalizados.append(processo)
             else:
-                if processo.inicio == -1:
-                    processo.inicio = self.tempo_atual
-                    processo.tempoRes = self.tempo_atual
-                while tempo_ate_quantum <= self.quantum and processo.tempo < processo.duracao:
-                    processo.tempo += 1
-                    self.tempo_atual += 1
-                    tempo_ate_quantum += 1
-                    # print(f"Processo {processo.nome} executando. Tempo atual: {self.tempo_atual}. Tempo de execução: {processo.duracao}")
-                tempo_ate_quantum = 1
-                if processo.tempo >= processo.duracao:
-                    processo.fim = True
-                    # print(f"Processo {processo.nome} finalizado. {self.tempo_atual} unidades de tempo. {processo.tempo_chegada}")
-                    processo.tempo_finalizacao = self.tempo_atual
-                    processo.tempo_retorno = processo.tempo_finalizacao - processo.tempo_chegada
-                    processo.tempo_resposta = processo.inicio - processo.tempo_chegada
-                    processos_finalizados.append(processo)
-                else:
-                    fila.append(processo)
+                fila.append(processo)
         self.listar_processos_finalizados(processos_finalizados)
         
     def listar_processos_finalizados(self, processos_finalizados):
